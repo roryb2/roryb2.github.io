@@ -1,0 +1,58 @@
+---
+interface Props {
+  label: string;
+  aside?: string;
+  href?: string;
+  linkText?: string;
+  as?: 'h2' | 'p';
+}
+
+const { label, aside, href, linkText = 'View all', as: Tag = 'h2' } = Astro.props;
+---
+
+<div class="section-label">
+  <Tag class="label">{label}</Tag>
+  <span class="rule" aria-hidden="true"></span>
+  {aside && <span class="label">{aside}</span>}
+  {
+    href && (
+      <a class="label link" href={href}>
+        {linkText}&nbsp;→
+      </a>
+    )
+  }
+</div>
+
+<style>
+  .section-label {
+    display: flex;
+    align-items: center;
+    gap: var(--space-s);
+    margin-bottom: var(--space-l);
+  }
+
+  h2.label,
+  p.label {
+    font-family: var(--font-label);
+    font-weight: 600;
+    font-size: var(--step--1);
+    line-height: 1.6;
+    letter-spacing: 0.08em;
+    white-space: nowrap;
+  }
+
+  .rule {
+    flex: 1;
+    height: 1px;
+    background: var(--rule);
+  }
+
+  .link {
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  .link:hover {
+    color: var(--accent);
+  }
+</style>

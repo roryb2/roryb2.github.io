@@ -1,0 +1,39 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import LabCard from '../../components/LabCard.astro';
+import { getLabEntries } from '../../lib/content';
+
+// The page only exists while there are entries; adding the first one brings it back.
+export async function getStaticPaths() {
+  const entries = await getLabEntries();
+  return entries.length > 0 ? [{ params: { index: undefined } }] : [];
+}
+
+const entries = await getLabEntries();
+---
+
+<BaseLayout title="Lab" description="Side projects and experiments by Rory Barrett.">
+  <header class="page-header container">
+    <p class="label">Lab</p>
+    <h1>Hobbies, experiments and <em class="accent">side quests.</em></h1>
+    <p class="lede">
+      What I make and explore outside work.
+    </p>
+  </header>
+
+  <section class="container">
+    <div class="grid">
+      {entries.map((entry) => (
+        <LabCard entry={entry} />
+      ))}
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 17rem), 1fr));
+    gap: var(--space-xl) var(--space-l);
+  }
+</style>

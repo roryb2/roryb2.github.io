@@ -1,0 +1,118 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Button from '../components/Button.astro';
+import ContactForm from '../components/ContactForm.astro';
+import { site } from '../data/site';
+
+const primary = site.socials.find((s) => s.label === 'LinkedIn');
+---
+
+<BaseLayout title="Contact" description="Get in touch with Rory Barrett.">
+  <header class="page-header container">
+    <p class="label">Contact</p>
+    <h1>Let's <em class="accent">talk.</em></h1>
+    <p class="lede">
+      Bring me the messy question.{!site.formspreeId && !site.email && ' LinkedIn is the best place to reach me.'}
+    </p>
+  </header>
+
+  <section class:list={['container', { layout: site.formspreeId }]}>
+    {
+      site.formspreeId ? (
+        <div class="form">
+          <ContactForm />
+        </div>
+      ) : (
+        <div class="cta">
+          {primary && (
+            <Button href={primary.href} rel="me noopener" target="_blank">
+              Message me on {primary.label} ↗
+            </Button>
+          )}
+        </div>
+      )
+    }
+    <aside class="direct">
+      {
+        site.email && (
+          <div>
+            <p class="label">Email</p>
+            <a class="email" href={`mailto:${site.email}`}>
+              {site.email}
+            </a>
+          </div>
+        )
+      }
+      <div>
+        <p class="label">Elsewhere</p>
+        <ul>
+          {
+            site.socials.map((s) => (
+              <li>
+                <a href={s.href} rel="me noopener" target="_blank">
+                  {s.label} ↗
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+      <div>
+        <p class="label">Based in</p>
+        <p>{site.location}</p>
+      </div>
+    </aside>
+  </section>
+</BaseLayout>
+
+<style>
+  .layout {
+    display: grid;
+    grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+    gap: var(--space-2xl);
+    align-items: start;
+  }
+
+  .form {
+    max-width: 36rem;
+  }
+
+  .cta {
+    margin-bottom: var(--space-xl);
+  }
+
+  .direct {
+    display: grid;
+    gap: var(--space-l);
+    padding-top: var(--space-l);
+    border-top: 1px solid var(--rule);
+  }
+
+  .direct .label + * {
+    margin-top: var(--space-xs);
+  }
+
+  .email {
+    font-family: var(--font-display);
+    font-size: var(--step-2);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    color: var(--accent);
+    text-decoration: none;
+    overflow-wrap: anywhere;
+  }
+
+  ul {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    gap: var(--space-2xs);
+  }
+
+  @media (max-width: 52rem) {
+    .layout {
+      grid-template-columns: 1fr;
+      gap: var(--space-xl);
+    }
+  }
+</style>

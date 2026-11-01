@@ -1,0 +1,144 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ProjectRow from '../../components/ProjectRow.astro';
+import { categoryLabel, getProjects } from '../../lib/content';
+
+const projects = await getProjects();
+const filters = [
+  { value: 'all', label: 'All', count: projects.length },
+  ...(Object.keys(categoryLabel) as (keyof typeof categoryLabel)[]).map((value) => ({
+    value,
+    label: categoryLabel[value],
+    count: projects.filter((p) => p.data.category === value).length,
+  })),
+];
+---
+
+<BaseLayout
+  title="Work"
+  description="Analytics engineering, data science and BI projects by Rory Barrett."
+>
+  <header class="page-header container">
+    <p class="label">Work</p>
+    <h1>What I've <em class="accent">built.</em></h1>
+    <p class="lede">
+      Selected projects. Client names stay private.
+    </p>
+  </header>
+
+  <section class="container">
+    <div class="filters" role="group" aria-label="Filter projects by type" data-filters hidden>
+      {
+        filters.map((f, i) => (
+          <button type="button" data-filter={f.value} aria-pressed={i === 0 ? 'true' : 'false'}>
+            {f.label} <span class="count">{f.count}</span>
+          </button>
+        ))
+      }
+    </div>
+
+    <ol class="project-list" data-project-list>
+      {projects.map((project, i) => <ProjectRow project={project} index={i} />)}
+    </ol>
+    <p class="visually-hidden" role="status" aria-live="polite" data-filter-status></p>
+  </section>
+</BaseLayout>
+
+<script>
+  const group = document.querySelector<HTMLElement>('[data-filters]');
+  const list = document.querySelector<HTMLElement>('[data-project-list]');
+  const status = document.querySelector<HTMLElement>('[data-filter-status]');
+
+  if (group && list && status) {
+    // Filters only work with JS, so they stay hidden until it runs.
+    group.hidden = false;
+    const buttons = group.querySelectorAll<HTMLButtonElement>('button');
+    const rows = list.querySelectorAll<HTMLElement>('[data-category]');
+
+    const apply = (value: string) => {
+      let shown = 0;
+      rows.forEach((row) => {
+        const visible = value === 'all' || row.dataset.category === value;
+        row.hidden = !visible;
+        if (visible) {
+          shown += 1;
+          row.querySelector('.num')!.textContent = String(shown).padStart(2, '0');
+        }
+      });
+      buttons.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.filter === value)));
+      status.textContent = `Showing ${shown} project${shown === 1 ? '' : 's'}`;
+    };
+
+    buttons.forEach((button) =>
+      button.addEventListener('click', () => {
+        const value = button.dataset.filter ?? 'all';
+        apply(value);
+        // Keep the URL in sync so a filtered view can be linked to.
+        const url = new URL(location.href);
+        if (value === 'all') url.searchParams.delete('type');
+        else url.searchParams.set('type', value);
+        history.replaceState(null, '', url);
+      }),
+    );
+
+    // Links like /work?type=data-science open with that filter applied.
+    const initial = new URLSearchParams(location.search).get('type');
+    if (initial && [...buttons].some((b) => b.dataset.filter === initial)) apply(initial);
+  }
+</script>
+
+<style>
+  .filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-xs);
+    margin-bottom: var(--space-l);
+  }
+
+  .filters[hidden] {
+    display: none;
+  }
+
+  .filters button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5em;
+    padding: 0.5em 1em;
+    border: 2px solid var(--rule);
+    border-radius: 0;
+    background: transparent;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition:
+      background-color 0.2s var(--ease),
+      border-color 0.2s var(--ease),
+      color 0.2s var(--ease);
+  }
+
+  .filters button:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .filters button[aria-pressed='true'] {
+    background: var(--ink);
+    border-color: var(--ink);
+    color: var(--bg);
+  }
+
+  .count {
+    font-family: var(--font-label);
+    font-size: 0.75rem;
+    opacity: 0.65;
+  }
+
+  .project-list {
+    list-style: none;
+    padding: 0;
+  }
+
+  .project-list :global([hidden]) {
+    display: none;
+  }
+</style>

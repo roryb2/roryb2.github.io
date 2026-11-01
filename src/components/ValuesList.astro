@@ -1,0 +1,50 @@
+---
+import type { Value } from '../data/profile';
+
+interface Props {
+  values: Value[];
+}
+
+const { values } = Astro.props;
+---
+
+<ol class="values">
+  {
+    values.map((value, i) => (
+      <li>
+        <span class="num label">{String(i + 1).padStart(2, '0')}</span>
+        <h3>{value.title}</h3>
+        <p>{value.body}</p>
+      </li>
+    ))
+  }
+</ol>
+
+<style>
+  .values {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+    gap: var(--space-xl) var(--space-l);
+  }
+
+  li {
+    padding-top: var(--space-s);
+    border-top: 2px solid var(--rule);
+  }
+
+  .num {
+    color: var(--accent);
+  }
+
+  h3 {
+    margin-top: var(--space-s);
+  }
+
+  p {
+    margin-top: var(--space-xs);
+    color: var(--ink-muted);
+    font-size: 0.97rem;
+  }
+</style>

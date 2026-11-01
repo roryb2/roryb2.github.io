@@ -1,0 +1,421 @@
+/* ---------------------------------------------------------------
+   Design tokens
+   --------------------------------------------------------------- */
+:root {
+  --bg: #ffffff;
+  --surface: #f2f2f2;
+  --ink: #111111;
+  --ink-muted: #6b6b6b;
+  /* Structural lines are solid black; soft rules are for underlines and fields. */
+  --rule: #111111;
+  --rule-soft: #dedede;
+  /* #d62b17 keeps 4.9:1 contrast on white, so it is safe for small text. */
+  --accent: #d62b17;
+  --accent-hover: #b3200e;
+  --accent-soft: #fdebe8;
+
+  --font-display: 'Inter Tight Variable', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --font-sans: 'Inter Variable', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --font-label: var(--font-sans);
+  --font-code: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+
+  /* Fluid type scale */
+  --step--1: clamp(0.8rem, 0.78rem + 0.1vw, 0.86rem);
+  --step-0: clamp(1rem, 0.96rem + 0.18vw, 1.1rem);
+  --step-1: clamp(1.2rem, 1.12rem + 0.4vw, 1.45rem);
+  --step-2: clamp(1.5rem, 1.32rem + 0.85vw, 2rem);
+  --step-3: clamp(1.9rem, 1.55rem + 1.6vw, 2.9rem);
+  --step-4: clamp(2.6rem, 1.8rem + 4vw, 5.2rem);
+  --step-5: clamp(3rem, 1.4rem + 7vw, 8rem);
+
+  /* Spacing */
+  --space-2xs: 0.25rem;
+  --space-xs: 0.5rem;
+  --space-s: 0.75rem;
+  --space-m: 1.25rem;
+  --space-l: 2rem;
+  --space-xl: 3.25rem;
+  --space-2xl: clamp(4rem, 3rem + 5vw, 7.5rem);
+
+  --gutter: clamp(1rem, 0.5rem + 2.5vw, 2.5rem);
+  --max-width: 72rem;
+  --prose-width: 40rem;
+  --radius: 0;
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+/* ---------------------------------------------------------------
+   Reset
+   --------------------------------------------------------------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+* {
+  margin: 0;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  scroll-behavior: smooth;
+}
+
+body {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: var(--step-0);
+  line-height: 1.6;
+  font-feature-settings: 'ss01', 'cv11';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+}
+
+main {
+  flex: 1;
+}
+
+img,
+svg,
+video,
+picture {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+input,
+button,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--bg);
+}
+
+/* ---------------------------------------------------------------
+   Typography
+   --------------------------------------------------------------- */
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-display);
+  font-weight: 800;
+  line-height: 0.98;
+  letter-spacing: -0.04em;
+  text-wrap: balance;
+}
+
+h1 {
+  font-size: var(--step-4);
+}
+
+h2 {
+  font-size: var(--step-3);
+}
+
+h3 {
+  font-size: var(--step-1);
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+p {
+  text-wrap: pretty;
+}
+
+a {
+  color: inherit;
+  text-decoration-color: var(--rule-soft);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+  transition:
+    color 0.2s var(--ease),
+    text-decoration-color 0.2s var(--ease);
+}
+
+a:hover {
+  color: var(--accent);
+  text-decoration-color: currentColor;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+em.accent {
+  font-style: normal;
+  color: var(--accent);
+}
+
+/* ---------------------------------------------------------------
+   Layout helpers
+   --------------------------------------------------------------- */
+.container {
+  width: 100%;
+  max-width: calc(var(--max-width) + var(--gutter) * 2);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+.section {
+  padding-block: var(--space-2xl);
+}
+
+.section + .section {
+  padding-top: 0;
+}
+
+/* Leave room for the sticky header when jumping to a section. */
+[id] {
+  scroll-margin-top: 5.5rem;
+}
+
+/* The footer already adds space above itself. */
+main > .section:last-child {
+  padding-bottom: 0;
+}
+
+.stack > * + * {
+  margin-top: var(--space-m);
+}
+
+.label {
+  font-family: var(--font-label);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-muted);
+}
+
+.muted {
+  color: var(--ink-muted);
+}
+
+.lede {
+  font-size: var(--step-1);
+  line-height: 1.5;
+  color: var(--ink-muted);
+  max-width: 38rem;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.skip-link {
+  position: absolute;
+  left: var(--gutter);
+  top: -100px;
+  z-index: 100;
+  padding: var(--space-xs) var(--space-s);
+  background: var(--ink);
+  color: var(--bg);
+  border-radius: var(--radius);
+  text-decoration: none;
+}
+
+.skip-link:focus {
+  top: var(--space-s);
+  color: var(--bg);
+}
+
+/* ---------------------------------------------------------------
+   Page header (used at the top of inner pages)
+   --------------------------------------------------------------- */
+.page-header {
+  padding-top: clamp(3rem, 2rem + 6vw, 7rem);
+  padding-bottom: var(--space-xl);
+}
+
+.page-header h1 {
+  margin-top: var(--space-m);
+  max-width: 16ch;
+}
+
+.page-header .lede {
+  margin-top: var(--space-m);
+}
+
+/* ---------------------------------------------------------------
+   Prose (MDX bodies)
+   --------------------------------------------------------------- */
+.prose {
+  max-width: var(--prose-width);
+  font-size: var(--step-0);
+  line-height: 1.75;
+}
+
+.prose > * + * {
+  margin-top: 1.25em;
+}
+
+.prose h2 {
+  font-size: var(--step-2);
+  margin-top: 2.2em;
+}
+
+.prose h3 {
+  font-size: var(--step-1);
+  margin-top: 1.8em;
+}
+
+.prose h2 + *,
+.prose h3 + * {
+  margin-top: 0.75em;
+}
+
+.prose a {
+  color: var(--accent);
+  text-decoration-color: color-mix(in srgb, var(--accent) 40%, transparent);
+}
+
+.prose ul,
+.prose ol {
+  padding-left: 1.25em;
+}
+
+.prose li + li {
+  margin-top: 0.4em;
+}
+
+.prose li::marker {
+  color: var(--ink-muted);
+}
+
+.prose blockquote {
+  border-left: 4px solid var(--accent);
+  padding-left: var(--space-m);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: var(--step-1);
+  line-height: 1.3;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+
+.prose code {
+  font-family: var(--font-code);
+  font-size: 0.88em;
+}
+
+.prose :not(pre) > code {
+  background: var(--surface);
+  padding: 0.12em 0.35em;
+  border-radius: 3px;
+}
+
+.prose pre {
+  padding: var(--space-m);
+  border: 1px solid var(--rule-soft);
+  background: #fafafa !important;
+  overflow-x: auto;
+  font-size: var(--step--1);
+  line-height: 1.6;
+}
+
+.prose hr {
+  border: 0;
+  border-top: 1px solid var(--rule-soft);
+  margin-block: var(--space-xl);
+}
+
+.prose img,
+.prose figure {
+  margin-block: var(--space-l);
+}
+
+.prose figcaption {
+  margin-top: var(--space-xs);
+  font-size: var(--step--1);
+  color: var(--ink-muted);
+}
+
+.prose table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--step--1);
+  font-variant-numeric: tabular-nums;
+}
+
+.prose th,
+.prose td {
+  text-align: left;
+  padding: var(--space-xs) var(--space-s) var(--space-xs) 0;
+  border-bottom: 1px solid var(--rule-soft);
+}
+
+.prose th {
+  border-bottom-color: var(--rule);
+  font-family: var(--font-label);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--ink-muted);
+}
+
+/* ---------------------------------------------------------------
+   Motion
+   --------------------------------------------------------------- */
+/* Movement only: content must stay visible even if the animation never runs. */
+@keyframes rise {
+  from {
+    transform: translateY(12px);
+  }
+  to {
+    transform: none;
+  }
+}
+
+.rise {
+  animation: rise 0.8s var(--ease) both;
+}
+
+.rise-1 {
+  animation-delay: 0.08s;
+}
+.rise-2 {
+  animation-delay: 0.16s;
+}
+.rise-3 {
+  animation-delay: 0.24s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

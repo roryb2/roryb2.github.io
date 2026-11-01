@@ -1,0 +1,133 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { Image } from 'astro:assets';
+import Tag from './Tag.astro';
+import { statusLabel } from '../lib/content';
+
+interface Props {
+  entry: CollectionEntry<'lab'>;
+}
+
+const { entry } = Astro.props;
+const { title, summary, status, tags, cover, coverAlt } = entry.data;
+---
+
+<article class="card">
+  <a href={`/lab/${entry.id}`}>
+    <div class="visual" aria-hidden={cover ? undefined : 'true'}>
+      {
+        cover ? (
+          <Image src={cover} alt={coverAlt ?? ''} widths={[400, 800]} sizes="(max-width: 48rem) 100vw, 33vw" />
+        ) : (
+          <span class="glyph">{title.charAt(0)}</span>
+        )
+      }
+    </div>
+    <div class="body">
+      <p class:list={['status', 'label', status]}>
+        <span class="dot" aria-hidden="true"></span>{statusLabel[status]}
+      </p>
+      <h3>{title}</h3>
+      <p class="summary">{summary}</p>
+      {
+        tags.length > 0 && (
+          <div class="tags">
+            {tags.map((t) => (
+              <Tag>{t}</Tag>
+            ))}
+          </div>
+        )
+      }
+    </div>
+  </a>
+</article>
+
+<style>
+  .card a {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    text-decoration: none;
+  }
+
+  .visual {
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    background: var(--surface);
+    display: grid;
+    place-items: center;
+  }
+
+  .visual :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.6s var(--ease);
+  }
+
+  .glyph {
+    font-family: var(--font-display);
+    font-weight: 800;
+    letter-spacing: -0.05em;
+    font-size: clamp(5rem, 3rem + 6vw, 8.5rem);
+    color: var(--accent);
+    transition: transform 0.6s var(--ease);
+  }
+
+  .card a:hover .glyph,
+  .card a:hover .visual :global(img) {
+    transform: scale(1.06);
+  }
+
+  .body {
+    padding-top: var(--space-m);
+  }
+
+  .status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5em;
+  }
+
+  .dot {
+    width: 0.45rem;
+    height: 0.45rem;
+    background: var(--ink-muted);
+  }
+
+  .active .dot {
+    background: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-soft);
+  }
+
+  .shipped .dot {
+    background: var(--ink);
+  }
+
+  h3 {
+    margin-top: var(--space-xs);
+    font-size: var(--step-1);
+    transition: color 0.2s var(--ease);
+  }
+
+  .card a:hover h3 {
+    color: var(--accent);
+  }
+
+  .card a:hover {
+    color: var(--ink);
+  }
+
+  .summary {
+    margin-top: var(--space-xs);
+    color: var(--ink-muted);
+    font-size: 0.95rem;
+  }
+
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2xs);
+    margin-top: var(--space-s);
+  }
+</style>

@@ -1,0 +1,306 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Button from '../components/Button.astro';
+import LabCard from '../components/LabCard.astro';
+import LocalTime from '../components/LocalTime.astro';
+import NowList from '../components/NowList.astro';
+import ProjectRow from '../components/ProjectRow.astro';
+import SectionLabel from '../components/SectionLabel.astro';
+import ValuesList from '../components/ValuesList.astro';
+import { getLabEntries, getProjects } from '../lib/content';
+import { intro, pillars, values } from '../data/profile';
+import { site } from '../data/site';
+
+const projects = await getProjects();
+const featured = projects.filter((p) => p.data.featured).slice(0, 3);
+const lab = (await getLabEntries()).slice(0, 3);
+const countFor = (category: string) => projects.filter((p) => p.data.category === category).length;
+
+// Chapters are numbered in order, skipping any that are empty.
+const chapters = ['Who I am', 'What I do', 'How I work', 'Now', ...(lab.length ? ['From the lab'] : []), 'Say hello'];
+const chapter = (title: string) => `${String(chapters.indexOf(title) + 1).padStart(2, '0')} — ${title}`;
+---
+
+<BaseLayout>
+  <section class="hero container">
+    <div class="greeting">
+      <p class="label rise">{site.role}</p>
+      <h1 class="rise rise-1">Hi, I'm Rory.</h1>
+      <p class="sub rise rise-2">
+        Data should change <em class="accent">decisions.</em><br />I make sure it does.
+      </p>
+    </div>
+    <aside class="card rise rise-3" aria-label="At a glance">
+      <dl>
+        <div>
+          <dt class="label">Based in</dt>
+          <dd>
+            {site.location}
+            <span class="muted"><LocalTime timeZone="America/Jamaica" fallback="GMT−5" /></span>
+          </dd>
+        </div>
+        <div>
+          <dt class="label">Currently</dt>
+          <dd>{site.currently}</dd>
+        </div>
+        <div>
+          <dt class="label">Experience</dt>
+          <dd>Over a decade in data</dd>
+        </div>
+      </dl>
+      <div class="cta">
+        <Button href="/contact">Work with me</Button>
+        <Button href="/work" variant="secondary">See the work</Button>
+      </div>
+    </aside>
+  </section>
+
+  <section id="who" class="section container" aria-labelledby="who-heading">
+    <SectionLabel label={chapter('Who I am')} />
+    <h2 id="who-heading" class="visually-hidden">Who I am</h2>
+    <div class="split">
+      <p class="lead">{intro[0]}</p>
+      <div class="more">
+        {intro.slice(1).map((p) => <p class="muted">{p}</p>)}
+        <a class="arrow-link" href="/about">The full story →</a>
+      </div>
+    </div>
+  </section>
+
+  <section id="what" class="section container" aria-labelledby="what-heading">
+    <SectionLabel label={chapter('What I do')} href="/work" linkText={`All ${projects.length} projects`} />
+    <h2 id="what-heading" class="visually-hidden">What I do</h2>
+    <ul class="pillars">
+      {
+        pillars.map((pillar) => (
+          <li>
+            <h3>{pillar.title}</h3>
+            <p>{pillar.body}</p>
+            <a class="label" href={`/work?type=${pillar.category}`}>
+              {countFor(pillar.category)} project{countFor(pillar.category) === 1 ? '' : 's'} →
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+    <p class="label sublabel">Selected work</p>
+    <ol class="project-list">
+      {featured.map((project, i) => <ProjectRow project={project} index={i} />)}
+    </ol>
+  </section>
+
+  <section id="how" class="section container" aria-labelledby="how-heading">
+    <SectionLabel label={chapter('How I work')} />
+    <h2 id="how-heading" class="visually-hidden">How I work</h2>
+    <ValuesList values={values} />
+  </section>
+
+  <section id="now" class="section container" aria-labelledby="now-heading">
+    <SectionLabel label={chapter('Now')} />
+    <h2 id="now-heading" class="visually-hidden">What I'm doing now</h2>
+    <NowList />
+  </section>
+
+  {
+    lab.length > 0 && (
+      <section class="section container" aria-labelledby="lab-heading">
+        <SectionLabel label={chapter('From the lab')} href="/lab" linkText="Visit the lab" />
+        <h2 id="lab-heading" class="visually-hidden">
+          From the lab
+        </h2>
+        <div class="lab-grid">
+          {lab.map((entry) => (
+            <LabCard entry={entry} />
+          ))}
+        </div>
+      </section>
+    )
+  }
+
+  <section id="hello" class="section container" aria-labelledby="hello-heading">
+    <SectionLabel label={chapter('Say hello')} />
+    <h2 id="hello-heading" class="hello">Let's <em class="accent">talk.</em></h2>
+    <div class="hello-row">
+      <p class="muted">Bring me the messy question. I'll tell you what the data can do.</p>
+      <div class="cta">
+        <Button href="/contact">Start a conversation</Button>
+        {site.email && <Button href={`mailto:${site.email}`} variant="secondary">{site.email}</Button>}
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(18rem, 24rem);
+    gap: var(--space-xl);
+    align-items: end;
+    padding-top: clamp(3.5rem, 2rem + 8vw, 9rem);
+  }
+
+  .hero h1 {
+    margin-top: var(--space-m);
+    font-size: var(--step-5);
+    line-height: 0.9;
+    letter-spacing: -0.055em;
+  }
+
+  .sub {
+    margin-top: var(--space-l);
+    max-width: 24ch;
+    font-family: var(--font-display);
+    font-size: var(--step-3);
+    font-weight: 700;
+    line-height: 1.08;
+    letter-spacing: -0.035em;
+  }
+
+  .card {
+    border-top: 2px solid var(--rule);
+  }
+
+  .card dl > div {
+    padding-block: var(--space-s);
+    border-bottom: 1px solid var(--rule-soft);
+  }
+
+  .card dd {
+    margin-top: var(--space-2xs);
+    font-weight: 500;
+  }
+
+  .card dd .muted {
+    display: block;
+    font-weight: 400;
+    font-size: 0.9rem;
+  }
+
+  .cta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-s);
+    margin-top: var(--space-l);
+  }
+
+  .split {
+    display: grid;
+    grid-template-columns: 3fr 2fr;
+    gap: var(--space-xl);
+    align-items: end;
+  }
+
+  .lead {
+    font-family: var(--font-display);
+    font-size: var(--step-2);
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -0.025em;
+  }
+
+  .more p {
+    max-width: 40ch;
+  }
+
+  .arrow-link {
+    display: inline-block;
+    margin-top: var(--space-m);
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: 500;
+  }
+
+  .arrow-link:hover {
+    text-decoration: underline;
+  }
+
+  .pillars {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-l);
+  }
+
+  .pillars li {
+    display: flex;
+    flex-direction: column;
+    padding-top: var(--space-s);
+    border-top: 2px solid var(--rule);
+  }
+
+  .pillars p {
+    flex: 1;
+    margin-top: var(--space-xs);
+    color: var(--ink-muted);
+    font-size: 0.97rem;
+  }
+
+  .pillars a {
+    margin-top: var(--space-m);
+    color: var(--accent);
+    text-decoration: none;
+  }
+
+  .pillars a:hover {
+    color: var(--accent-hover);
+    text-decoration: underline;
+  }
+
+  .sublabel {
+    margin-top: var(--space-2xl);
+    margin-bottom: var(--space-s);
+  }
+
+  .project-list {
+    list-style: none;
+    padding: 0;
+  }
+
+  .lab-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 17rem), 1fr));
+    gap: var(--space-xl) var(--space-l);
+  }
+
+  .hello {
+    font-size: var(--step-5);
+    line-height: 0.9;
+    letter-spacing: -0.055em;
+  }
+
+  .hello-row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: end;
+    gap: var(--space-l);
+    margin-top: var(--space-l);
+  }
+
+  .hello-row p {
+    max-width: 36ch;
+  }
+
+  .hello-row .cta {
+    margin-top: 0;
+  }
+
+  @media (max-width: 56rem) {
+    .hero {
+      grid-template-columns: 1fr;
+      gap: var(--space-xl);
+    }
+
+    .pillars {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 48rem) {
+    .split {
+      grid-template-columns: 1fr;
+      gap: var(--space-m);
+    }
+  }
+</style>

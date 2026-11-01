@@ -1,0 +1,97 @@
+---
+import { site } from '../data/site';
+import { getNav } from '../lib/content';
+
+const nav = await getNav();
+
+const year = new Date().getFullYear();
+// Home and Contact already end with their own invitation to get in touch.
+const path = Astro.url.pathname;
+const showCta = path !== '/' && !path.startsWith('/contact');
+---
+
+<footer class="site-footer">
+  <div class="container">
+    {
+      showCta && (
+        <p class="sign-off">
+          Got a data problem? <a href="/contact">Let's talk&nbsp;→</a>
+        </p>
+      )
+    }
+    <div class="bottom">
+      <p class="label">© {year} {site.name}</p>
+      <ul class="links">
+        {
+          nav.map((item) => (
+            <li>
+              <a href={item.href}>{item.label}</a>
+            </li>
+          ))
+        }
+        {
+          site.socials.map((s) => (
+            <li>
+              <a href={s.href} rel="me noopener" target="_blank">
+                {s.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    margin-top: var(--space-2xl);
+    border-top: 1px solid var(--rule);
+    padding-block: var(--space-xl) var(--space-l);
+  }
+
+  .sign-off {
+    font-family: var(--font-display);
+    font-size: var(--step-3);
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -0.04em;
+    max-width: 18ch;
+  }
+
+  .sign-off a {
+    color: var(--accent);
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  .sign-off + .bottom {
+    margin-top: var(--space-xl);
+  }
+
+  .bottom {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: var(--space-m);
+  }
+
+  .links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-xs) var(--space-m);
+    list-style: none;
+    padding: 0;
+    font-size: var(--step--1);
+  }
+
+  .links a {
+    color: var(--ink-muted);
+    text-decoration: none;
+  }
+
+  .links a:hover {
+    color: var(--accent);
+  }
+</style>

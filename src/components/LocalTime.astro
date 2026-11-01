@@ -1,0 +1,32 @@
+---
+// The current time in a given timezone, updated every minute. Without JS it shows the UTC offset.
+interface Props {
+  timeZone: string;
+  fallback: string;
+}
+
+const { timeZone, fallback } = Astro.props;
+---
+
+<time class="local-time" data-local-time={timeZone}>{fallback}</time>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-local-time]').forEach((el) => {
+    const format = new Intl.DateTimeFormat('en-GB', {
+      timeZone: el.dataset.localTime,
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+    const tick = () => {
+      el.textContent = `${format.format(new Date())} local time`;
+    };
+    tick();
+    setInterval(tick, 30_000);
+  });
+</script>
+
+<style>
+  .local-time {
+    font-variant-numeric: tabular-nums;
+  }
+</style>

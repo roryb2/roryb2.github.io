@@ -1,0 +1,104 @@
+---
+import type { Role } from '../data/experience';
+
+interface Props {
+  roles: Role[];
+}
+
+const { roles } = Astro.props;
+---
+
+<ol class="timeline">
+  {
+    roles.map((role) => (
+      <li class="item">
+        <p class="when label">
+          {role.start ? `${role.start} – ${role.end ?? 'Now'}` : `Until ${role.end}`}
+        </p>
+        <div class="what">
+          <h3>
+            {role.title}
+            {role.org && (
+              <span class="org">
+                {' '}
+                at {role.orgUrl ? <a href={role.orgUrl}>{role.org}</a> : role.org}
+              </span>
+            )}
+          </h3>
+          {role.location && <p class="label where">{role.location}</p>}
+          <p class="summary">{role.summary}</p>
+          {role.highlights.length > 0 && (
+            <ul>
+              {role.highlights.map((h) => (
+                <li>{h}</li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </li>
+    ))
+  }
+</ol>
+
+<style>
+  .timeline {
+    list-style: none;
+    padding: 0;
+  }
+
+  .item {
+    display: grid;
+    grid-template-columns: minmax(8rem, 12rem) 1fr;
+    gap: var(--space-m);
+    padding-block: var(--space-l);
+    border-top: 1px solid var(--rule);
+  }
+
+  .item:last-child {
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .when {
+    padding-top: 0.35rem;
+  }
+
+  h3 {
+    font-size: var(--step-1);
+  }
+
+  .org {
+    font-weight: 400;
+    color: var(--ink-muted);
+  }
+
+  .where {
+    margin-top: var(--space-2xs);
+  }
+
+  .summary {
+    margin-top: var(--space-s);
+    max-width: 52ch;
+  }
+
+  ul {
+    margin-top: var(--space-s);
+    padding-left: 1.1em;
+    color: var(--ink-muted);
+    max-width: 58ch;
+  }
+
+  ul li + li {
+    margin-top: 0.35em;
+  }
+
+  ul li::marker {
+    color: var(--accent);
+  }
+
+  @media (max-width: 40rem) {
+    .item {
+      grid-template-columns: 1fr;
+      gap: var(--space-xs);
+    }
+  }
+</style>

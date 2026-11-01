@@ -1,0 +1,30 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Button from '../components/Button.astro';
+---
+
+<BaseLayout title="Page not found">
+  <section class="page-header container not-found">
+    <p class="label">404</p>
+    <h1>This page doesn't <em class="accent">exist.</em></h1>
+    <p class="lede">Try one of these instead.</p>
+    <div class="cta">
+      <Button href="/">Home</Button>
+      <Button href="/work" variant="secondary">Work</Button>
+      <Button href="/contact" variant="secondary">Contact</Button>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .not-found {
+    min-height: 50vh;
+  }
+
+  .cta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-s);
+    margin-top: var(--space-l);
+  }
+</style>

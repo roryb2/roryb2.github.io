@@ -1,0 +1,212 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Button from '../components/Button.astro';
+import SectionLabel from '../components/SectionLabel.astro';
+import Tag from '../components/Tag.astro';
+import Timeline from '../components/Timeline.astro';
+import { education, goals, roles, skills } from '../data/experience';
+import { intro } from '../data/profile';
+import { site } from '../data/site';
+---
+
+<BaseLayout
+  title="About"
+  description="The full story of Rory Barrett, a data and analytics leader in Kingston, Jamaica."
+>
+  <header class="page-header container">
+    <p class="label">About</p>
+    <h1>The full <em class="accent">story.</em></h1>
+    <div class="intro">
+      <div class="prose">
+        <p>{intro[0]}</p>
+        <p>
+          Most of my career has been at a data and compliance consultancy serving Caribbean financial
+          institutions. I started by building risk-scoring models. Now I lead data and analytics
+          engineering and work directly with client leadership.
+        </p>
+        {intro.slice(1).map((p) => <p>{p}</p>)}
+        <p>
+          See <a href="/#how">how I work</a> and <a href="/#now">what I'm doing now</a>.
+        </p>
+      </div>
+      {
+        site.cvPath ? (
+          <aside class="cv-card">
+            <p class="label">Curriculum vitae</p>
+            <p>Everything on one page.</p>
+            <Button href={site.cvPath} download>
+              Download CV <span aria-hidden="true">↓</span>
+            </Button>
+          </aside>
+        ) : (
+          <aside class="cv-card">
+            <p class="label">Got a data problem?</p>
+            <p>Tell me about it. I'll tell you if I can help.</p>
+            <Button href="/contact">Get in touch</Button>
+          </aside>
+        )
+      }
+    </div>
+  </header>
+
+  <section class="section container" aria-labelledby="goals">
+    <SectionLabel label="The work I want" />
+    <h2 id="goals" class="visually-hidden">The work I want</h2>
+    <ol class="goals">
+      {
+        goals.map((goal, i) => (
+          <li>
+            <span class="label">{String(i + 1).padStart(2, '0')}</span>
+            <p>{goal}</p>
+          </li>
+        ))
+      }
+    </ol>
+  </section>
+
+  <section class="section container" aria-labelledby="experience">
+    <SectionLabel label="Experience" />
+    <h2 id="experience" class="visually-hidden">Experience</h2>
+    <Timeline roles={roles} />
+  </section>
+
+  <section class="section container two-col">
+    <div aria-labelledby="skills">
+      <SectionLabel label="Skills" />
+      <h2 id="skills" class="visually-hidden">Skills</h2>
+      <div class="skills">
+        {
+          skills.map((group) => (
+            <div class="skill-group">
+              <h3>{group.group}</h3>
+              <div class="tags">
+                {group.items.map((item) => (
+                  <Tag>{item}</Tag>
+                ))}
+              </div>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+    <div aria-labelledby="education">
+      <SectionLabel label="Education" />
+      <h2 id="education" class="visually-hidden">Education</h2>
+      <ul class="education">
+        {
+          education.map((e) => (
+            <li>
+              {e.end && <p class="label">{e.start ? `${e.start} – ${e.end}` : e.end}</p>}
+              <h3>{e.qualification}</h3>
+              <p class="muted">{e.institution}</p>
+              {e.note && <p class="note">{e.note}</p>}
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .intro {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 18rem;
+    gap: var(--space-2xl);
+    align-items: start;
+    margin-top: var(--space-xl);
+  }
+
+  .cv-card {
+    position: sticky;
+    top: 6rem;
+    display: grid;
+    gap: var(--space-s);
+    padding: var(--space-l);
+    background: var(--surface);
+    border-radius: var(--radius);
+  }
+
+  .cv-card p:not(.label) {
+    font-size: 0.95rem;
+    color: var(--ink-muted);
+  }
+
+  .cv-card :global(.button) {
+    justify-self: start;
+    margin-top: var(--space-xs);
+  }
+
+  .goals {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+    gap: var(--space-l);
+  }
+
+  .goals li p {
+    margin-top: var(--space-xs);
+    font-family: var(--font-display);
+    font-size: var(--step-1);
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+  }
+
+  .goals .label {
+    color: var(--accent);
+  }
+
+  .two-col {
+    display: grid;
+    grid-template-columns: 3fr 2fr;
+    gap: var(--space-2xl);
+  }
+
+  .skills {
+    display: grid;
+    gap: var(--space-l);
+  }
+
+  .skill-group h3,
+  .education h3 {
+    font-size: var(--step-1);
+  }
+
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-xs);
+    margin-top: var(--space-s);
+  }
+
+  .education {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    gap: var(--space-l);
+  }
+
+  .education h3 {
+    margin-top: var(--space-2xs);
+  }
+
+  .note {
+    margin-top: var(--space-xs);
+    font-size: 0.95rem;
+    color: var(--ink-muted);
+  }
+
+  @media (max-width: 52rem) {
+    .intro,
+    .two-col {
+      grid-template-columns: 1fr;
+      gap: var(--space-xl);
+    }
+
+    .cv-card {
+      position: static;
+    }
+  }
+</style>

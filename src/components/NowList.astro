@@ -1,0 +1,57 @@
+---
+import { now } from '../data/profile';
+import { formatMonthYear } from '../lib/content';
+
+const updated = new Date(now.updated);
+---
+
+<div class="now">
+  <dl>
+    {
+      now.items.map((item) => (
+        <div class="row">
+          <dt class="label">{item.label}</dt>
+          <dd>{item.text}</dd>
+        </div>
+      ))
+    }
+  </dl>
+  <p class="label updated">
+    Updated <time datetime={now.updated}>{formatMonthYear(updated)}</time>
+  </p>
+</div>
+
+<style>
+  .row {
+    display: grid;
+    grid-template-columns: minmax(7rem, 12rem) 1fr;
+    gap: var(--space-m);
+    align-items: baseline;
+    padding-block: var(--space-m);
+    border-top: 1px solid var(--rule);
+  }
+
+  .row:last-child {
+    border-bottom: 1px solid var(--rule);
+  }
+
+  dd {
+    font-family: var(--font-display);
+    font-size: var(--step-1);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.25;
+    max-width: 38ch;
+  }
+
+  .updated {
+    margin-top: var(--space-s);
+  }
+
+  @media (max-width: 40rem) {
+    .row {
+      grid-template-columns: 1fr;
+      gap: var(--space-2xs);
+    }
+  }
+</style>

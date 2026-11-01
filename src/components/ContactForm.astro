@@ -1,0 +1,181 @@
+---
+import { site } from '../data/site';
+
+const action = `https://formspree.io/f/${site.formspreeId}`;
+---
+
+<form class="contact-form" action={action} method="POST" data-contact-form>
+  <div class="field">
+    <label for="cf-name">Name</label>
+    <input id="cf-name" name="name" type="text" autocomplete="name" required />
+  </div>
+  <div class="field">
+    <label for="cf-email">Email</label>
+    <input id="cf-email" name="email" type="email" autocomplete="email" required />
+  </div>
+  <div class="field">
+    <label for="cf-topic">What's it about?</label>
+    <select id="cf-topic" name="topic">
+      <option>A project</option>
+      <option>Something I built</option>
+      <option>Just saying hello</option>
+    </select>
+  </div>
+  <div class="field">
+    <label for="cf-message">Message</label>
+    <textarea id="cf-message" name="message" rows="6" required minlength="10"></textarea>
+  </div>
+
+  <!-- Honeypot: hidden from people, bots tend to fill it in. Formspree drops submissions that do. -->
+  <div class="hp" aria-hidden="true">
+    <label for="cf-gotcha">Leave this empty</label>
+    <input id="cf-gotcha" type="text" name="_gotcha" tabindex="-1" autocomplete="off" />
+  </div>
+
+  <div class="actions">
+    <button type="submit">Send message <span aria-hidden="true">→</span></button>
+    <p class="status" role="status" aria-live="polite" data-status></p>
+  </div>
+</form>
+
+<script>
+  document.querySelectorAll<HTMLFormElement>('[data-contact-form]').forEach((form) => {
+    const status = form.querySelector<HTMLElement>('[data-status]')!;
+    const button = form.querySelector<HTMLButtonElement>('button[type="submit"]')!;
+
+    const setStatus = (message: string, state: 'idle' | 'sending' | 'success' | 'error') => {
+      status.textContent = message;
+      form.dataset.state = state;
+    };
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      if (!form.reportValidity()) return;
+
+      button.disabled = true;
+      setStatus('Sending…', 'sending');
+
+      try {
+        const response = await fetch(form.action, {
+          method: 'POST',
+          body: new FormData(form),
+          headers: { Accept: 'application/json' },
+        });
+        if (!response.ok) throw new Error(`Request failed: ${response.status}`);
+        form.reset();
+        setStatus('Thanks. Your message is on its way.', 'success');
+      } catch {
+        setStatus("That didn't send. Try again, or email me.", 'error');
+      } finally {
+        button.disabled = false;
+      }
+    });
+  });
+</script>
+
+<style>
+  .contact-form {
+    display: grid;
+    gap: var(--space-m);
+  }
+
+  .field {
+    display: grid;
+    gap: var(--space-xs);
+  }
+
+  label {
+    font-family: var(--font-label);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+  }
+
+  input,
+  select,
+  textarea {
+    width: 100%;
+    padding: 0.8rem 0.9rem;
+    background: var(--bg);
+    border: 1px solid var(--rule-soft);
+    border-bottom-color: var(--rule);
+    border-radius: var(--radius);
+    font-size: 1rem;
+    transition:
+      border-color 0.2s var(--ease),
+      background-color 0.2s var(--ease);
+  }
+
+  textarea {
+    resize: vertical;
+    min-height: 9rem;
+  }
+
+  input:hover,
+  select:hover,
+  textarea:hover {
+    border-color: var(--ink-muted);
+  }
+
+  input:focus,
+  select:focus,
+  textarea:focus {
+    outline: none;
+    border-color: var(--ink);
+    box-shadow: inset 0 -2px 0 var(--accent);
+  }
+
+  .hp {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
+
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-m);
+    margin-top: var(--space-xs);
+  }
+
+  button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5em;
+    padding: 0.85em 1.4em;
+    border: 0;
+    border-radius: 0;
+    background: var(--accent);
+    color: var(--bg);
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s var(--ease);
+  }
+
+  button:hover {
+    background: var(--accent-hover);
+  }
+
+  button:disabled {
+    opacity: 0.6;
+    cursor: progress;
+  }
+
+  .status {
+    font-size: 0.95rem;
+    color: var(--ink-muted);
+  }
+
+  .contact-form[data-state='success'] .status {
+    color: var(--accent);
+  }
+
+  .contact-form[data-state='error'] .status {
+    color: #9b2c1f;
+  }
+</style>

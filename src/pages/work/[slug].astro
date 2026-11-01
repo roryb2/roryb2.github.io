@@ -1,0 +1,235 @@
+---
+import type { GetStaticPaths } from 'astro';
+import { render } from 'astro:content';
+import { Image } from 'astro:assets';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Tag from '../../components/Tag.astro';
+import { categoryLabel, getProjects, projectWhen } from '../../lib/content';
+
+export const getStaticPaths = (async () => {
+  const projects = await getProjects();
+  return projects.map((project, i) => ({
+    params: { slug: project.id },
+    props: {
+      project,
+      prev: projects[i - 1],
+      next: projects[i + 1],
+    },
+  }));
+}) satisfies GetStaticPaths;
+
+const { project, prev, next } = Astro.props;
+const { title, summary, role, category, stack, tags, links, cover, coverAlt } = project.data;
+const { Content } = await render(project);
+
+const linkLabels = {
+  demo: 'Live demo',
+  repo: 'Source code',
+  notebook: 'Notebook',
+  paper: 'Write-up',
+} as const;
+const projectLinks = (Object.keys(linkLabels) as (keyof typeof linkLabels)[])
+  .filter((key) => links[key])
+  .map((key) => ({ label: linkLabels[key], href: links[key]! }));
+---
+
+<BaseLayout title={title} description={summary}>
+  <article>
+    <header class="page-header container">
+      <a class="back label" href="/work">← All work</a>
+      <p class="label kicker">{categoryLabel[category]}</p>
+      <h1>{title}</h1>
+      <p class="lede">{summary}</p>
+
+      <dl class="meta">
+        <div>
+          <dt class="label">Role</dt>
+          <dd>{role}</dd>
+        </div>
+        <div>
+          <dt class="label">When</dt>
+          <dd>{projectWhen(project.data)}</dd>
+        </div>
+        {
+          stack.length > 0 && (
+            <div class="wide">
+              <dt class="label">Stack</dt>
+              <dd class="tags">
+                {stack.map((s) => (
+                  <Tag tone="accent">{s}</Tag>
+                ))}
+                {tags.map((t) => (
+                  <Tag>{t}</Tag>
+                ))}
+              </dd>
+            </div>
+          )
+        }
+        {
+          projectLinks.length > 0 && (
+            <div>
+              <dt class="label">Links</dt>
+              <dd>
+                <ul class="links">
+                  {projectLinks.map((l) => (
+                    <li>
+                      <a href={l.href} target="_blank" rel="noopener">
+                        {l.label} ↗
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </dd>
+            </div>
+          )
+        }
+      </dl>
+    </header>
+
+    {
+      cover && (
+        <div class="container">
+          <Image
+            class="cover"
+            src={cover}
+            alt={coverAlt ?? ''}
+            widths={[800, 1400, 2000]}
+            sizes="(max-width: 76rem) 100vw, 72rem"
+            loading="eager"
+          />
+        </div>
+      )
+    }
+
+    <div class="container">
+      <div class="prose">
+        <Content />
+      </div>
+    </div>
+  </article>
+
+  <nav class="container" aria-label="More projects">
+    <div class="pager">
+      {
+        prev ? (
+          <a class="prev" href={`/work/${prev.id}`}>
+            <span class="label">← Previous</span>
+            <span class="t">{prev.data.title}</span>
+          </a>
+        ) : (
+          <span />
+        )
+      }
+      {
+        next && (
+          <a class="next" href={`/work/${next.id}`}>
+            <span class="label">Next →</span>
+            <span class="t">{next.data.title}</span>
+          </a>
+        )
+      }
+    </div>
+  </nav>
+</BaseLayout>
+
+<style>
+  .back {
+    display: inline-block;
+    text-decoration: none;
+    margin-bottom: var(--space-l);
+  }
+
+  .back:hover {
+    color: var(--accent);
+  }
+
+  .kicker {
+    color: var(--accent);
+  }
+
+  .page-header h1 {
+    max-width: 20ch;
+  }
+
+  .meta {
+    display: grid;
+    grid-template-columns: repeat(4, auto);
+    justify-content: start;
+    gap: var(--space-m) var(--space-xl);
+    margin-top: var(--space-xl);
+    padding-top: var(--space-m);
+    border-top: 1px solid var(--rule);
+  }
+
+  .meta dd {
+    margin-top: var(--space-xs);
+  }
+
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2xs);
+    max-width: 28rem;
+  }
+
+  .links {
+    list-style: none;
+    padding: 0;
+  }
+
+  .links a {
+    color: var(--accent);
+    white-space: nowrap;
+  }
+
+  .cover {
+    width: 100%;
+    border-radius: var(--radius);
+    margin-bottom: var(--space-xl);
+  }
+
+  .pager {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-m);
+    margin-top: var(--space-2xl);
+    padding-top: var(--space-l);
+    border-top: 1px solid var(--rule);
+  }
+
+  .pager a {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2xs);
+    text-decoration: none;
+    max-width: 22rem;
+  }
+
+  .pager .next {
+    text-align: right;
+    margin-left: auto;
+  }
+
+  .pager .t {
+    font-family: var(--font-display);
+    font-size: var(--step-1);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.03em;
+  }
+
+  .pager a:hover .t {
+    color: var(--accent);
+  }
+
+  @media (max-width: 52rem) {
+    .meta {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .meta .wide {
+      grid-column: 1 / -1;
+      order: 3;
+    }
+  }
+</style>
